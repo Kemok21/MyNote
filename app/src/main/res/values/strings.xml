@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">My Note</string>
+    <string name="empty_not_saved">Note not saved because it is empty.</string>
+    <string name="same_not_saved">Note not saved because it exists.</string>
+    <string name="new_note">New Note</string>
+    <string name="delete_note_dialog_massage">Are you sure that you want to delete the note?</string>
+    <string name="delete_note">Delete note</string>
+    <string name="update_note_dialog_massage">The note has changed. Do you want to save the changes?</string>
+    <string name="save_changes">Change note</string>
+    <string name="cancel_changes">Cancel</string>
+    <string name="toast_empty_note">The note is empty</string>
+    <string name="toast_delete_note">The note deleted</string>
+    <string name="toast_save_note">The note saved</string>
+    <string name="title_edit">Edit Note</string>
+    <string name="save_note">Save note</string>
+    <string name="hint_content">Note</string>
+    <string name="hint_title">Title</string>
+</resources>
