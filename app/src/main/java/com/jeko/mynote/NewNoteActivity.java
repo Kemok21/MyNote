@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +29,9 @@ public class NewNoteActivity extends AppCompatActivity {
     EditText mEditContentView;
 
     private Note mNote;
+    private LiveData<Note> mLiveNote;
     private NoteViewModel mNoteViewModel;
+    private EditNoteViewModel mEditNoteViewModel;
 
     public NewNoteActivity() {
     }
@@ -40,12 +43,18 @@ public class NewNoteActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mNoteViewModel = new ViewModelProvider(this).get(NoteViewModel.class);
+        mEditNoteViewModel = new ViewModelProvider(this).get(EditNoteViewModel.class);
+        mLiveNote = mEditNoteViewModel.getNote();
+        mLiveNote.observe(this, note -> {
+            mNote = note;
+            mEditTitleView.setText(note.getTitle());
+            mEditContentView.setText(note.getContent());
+        });
         Intent intent = getIntent();
-        if (intent.hasExtra("note")) {
-            mNote = intent.getParcelableExtra("note");
+        if (intent.hasExtra("note") && mLiveNote.getValue().getId() == 0) {
+            mEditNoteViewModel.setNote(intent.getParcelableExtra("note"));
             setTitle(R.string.title_edit);
-            mEditTitleView.setText(mNote.getTitle());
-            mEditContentView.setText(mNote.getContent());
+
         }
 
     }
@@ -77,7 +86,7 @@ public class NewNoteActivity extends AppCompatActivity {
                 showDeleteNoteConfirmationDialog();
                 return true;
             case android.R.id.home:
-                if (mNote != null) {
+                if (mNote.getId() != 0) {
                     String title = mEditTitleView.getText().toString();
                     String content = mEditContentView.getText().toString();
                     if (!(title.equals(mNote.getTitle()) && content.equals(mNote.getContent()))) {
@@ -113,7 +122,6 @@ public class NewNoteActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.save_changes, (dialog, which) -> {
                     // User clicked the "Change" button, so change the note.
                     saveNote();
-                    finish();
                 })
                 .setNegativeButton(R.string.cancel_changes, (dialog, which) -> finish())
                 .show();
@@ -141,7 +149,7 @@ public class NewNoteActivity extends AppCompatActivity {
             title = makeTitleByContent(content);
             mEditTitleView.setText(title);
         }
-        if (mNote != null) {
+        if (mNote.getId() != 0) {
             if (!(title.equals(mNote.getTitle()) && content.equals(mNote.getContent()))) {
                 mNote.setTitle(title);
                 mNote.setContent(content);
@@ -162,6 +170,7 @@ public class NewNoteActivity extends AppCompatActivity {
                 Toast.LENGTH_LONG).show();
         finish();
     }
+
     // If title is empty, make it from content
     private String makeTitleByContent(String content) {
         String res = "";
@@ -191,11 +200,5 @@ public class NewNoteActivity extends AppCompatActivity {
         Intent intent = new Intent(activity, NewNoteActivity.class);
         intent.putExtra("note", note);
         activity.startActivity(intent);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        saveNote();
     }
 }
